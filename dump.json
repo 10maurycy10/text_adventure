@@ -11,7 +11,11 @@
             "apple":{
                "desc":"a red apple",
                "can_take":true
-            }
+            },
+			"foobar" : {
+ 			"desc" : "a foobar",
+ 			"can_take" : true
+ 			}
          }
       },
       "_start":{
@@ -51,6 +55,6 @@
  		"foobar" : {
  			"desc" : "a foobar",
  			"can_take" : true
- 		}     
+ 		}
    }
 }
