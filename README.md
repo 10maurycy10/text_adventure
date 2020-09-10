@@ -1,14 +1,14 @@
-#Text Adventure
+# Text Adventure
 
-##What is this
+## What is this
 
 this is an attempt to alow 	the cration of symple text adventure games using JSON files
 
 main file : tree.json
 
-##(curent) limitations
+## (curent) limitations
 
-###Identical items are weard
+### Identical items are weard
 
     > i
     you have a foobar
@@ -16,13 +16,13 @@ main file : tree.json
     > drop foobar
     Be more spacific please!
 
-##todo
+## todo
 
-###short term (commit)
+### short term (commit)
 
 fix spelling!
 
-###long term
+### long term
 
 add combat
 
