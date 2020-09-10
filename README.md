@@ -1,14 +1,14 @@
-#Text Adventure
+# Text Adventure
 
-##What is this
+## What is this
 
 this is an attempt to alow 	the cration of symple text adventure games using JSON files
 
-##(curent) limitations
+## (curent) limitations
 
-###Multiple items of the same name are not suported and will merge when placed in the same context (room / backpack). [bug]
+### Multiple items of the same name are not suported and will merge when placed in the same context (room / backpack). [bug]
 
-###An item can have one name
+### An item can have one name
 
     you see a red apple
     > take red
@@ -18,13 +18,13 @@ this is an attempt to alow 	the cration of symple text adventure games using JSO
     > take apple
     you take the red apple
 
-##todo
+## todo
 
-###short term (day)
+### short term (day)
 
 rework item system
 
-###long term
+### long term
 
 add combat
 
