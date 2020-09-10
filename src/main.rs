@@ -9,7 +9,7 @@ use std::fs::File;
 use serde::{Serialize, Deserialize};
 
 #[derive(Debug,Clone,Deserialize,Serialize,PartialEq,Eq)]
-struct Item {
+struct Object {
 	desc: Rc<String>,
 	can_take: bool,
 	names: Vec<String>,
@@ -21,7 +21,7 @@ struct Place {
 	ambient: Option<String>,
 	long: String,
 	moves: HashMap<String,String>,
-	objects: Vec<Item>
+	objects: Vec<Object>
 }
 
 #[derive(Debug,Clone,Deserialize,Serialize,PartialEq,Eq)]
@@ -29,7 +29,7 @@ struct World {
 	map: HashMap<String,Place>,
 	location: String,
 	aliases: HashMap<String,String>,
-	backpack: Vec<Item>,
+	backpack: Vec<Object>,
 }
 
 enum NameResolves {
@@ -39,7 +39,7 @@ enum NameResolves {
 	Empty_Query,
 }
 
-fn get_name(context :Vec<Item>, name :Vec<String>) -> NameResolves {
+fn get_name(context :Vec<Object>, name :Vec<String>) -> NameResolves {
 	let mut acumulator :Vec<bool> = vec![true; context.len()];
 	if (name.len() == 0) {
 		return NameResolves::Empty_Query;
@@ -98,11 +98,14 @@ fn command(mut input_str: String, world: &mut World, game_over: &mut bool) {
 	match &*start {
 		"help" 	=> {print!(
 "\
-help : dispalys avalable comands; world.aliases = ?
+help : displays available commands; world.aliases = ?
 go [north, south, west, east, up, down] : move in a direction; world.aliases = n s e w u d
 take [objects] : take an objects; world.aliases = t [objects]
-look [objects] : look at an objects you ; world.aliases l
+drop [object] : drop an object form 
+look [objects] : look at an object's you ; world.aliases l
 inventory <objects> : look at you backpack ; world.aliases i
+save [file] : save game data to json
+load [file] : load game data from json
 "	
 		);},
 		"save" => {
@@ -136,7 +139,7 @@ inventory <objects> : look at you backpack ; world.aliases i
 			match input_iter.next() {
 				Some(dir) => match curent_room.moves.get(&dir) {
 					Some(dest) => world.location = dest.to_string(),
-					None => println!("You can not go that way."),
+					None => println!("You can't go that way."),
 				},
 				None => println!("You must specify a direction."),
 			}
@@ -161,8 +164,8 @@ inventory <objects> : look at you backpack ; world.aliases i
 					}
 				}
 				NameResolves::Empty_Query => println!("You must specify a thing."),
-				NameResolves::Zero => println!("You cant find that."),
-				NameResolves::Mulitple => println!("Be more spacific please!"),
+				NameResolves::Zero => println!("You can't find that."),
+				NameResolves::Mulitple => println!("Be more specific please!"),
 			}	
 		},
 		"inventory" => {
@@ -182,8 +185,8 @@ inventory <objects> : look at you backpack ; world.aliases i
 					}
 				}
 				NameResolves::Empty_Query => println!("You must specify a thing."),
-				NameResolves::Zero => println!("You cant find that."),
-				NameResolves::Mulitple => println!("Be more spacific please!"),
+				NameResolves::Zero => println!("You can't find that."),
+				NameResolves::Mulitple => println!("Be more specific please!"),
 			}	
 		}
 		_ => println!("?"),
