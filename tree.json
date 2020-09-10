@@ -5,12 +5,13 @@
 		"moves" : {
 			"up" : "tree1"
 		},
-		"objects" : {
-			"grate" : {
+		"objects" : [
+			{
 				"desc" : "metal grate bolted to the ground",
-				"can_take" : false
+				"can_take" : false,
+				"names": ["metal","grate"]
 			}
-		}
+		]
 	},
 	"tree1" : {
 		"desc" : "you are up a tree.",
@@ -18,11 +19,12 @@
 		"moves" : {
 			"down" : "_start"
 		},
-		"objects" : {
-			"apple" : {
+		"objects" : [
+			{
 				"desc" : "red apple",
-				"can_take" : true
+				"can_take" : true,
+				"names" : ["red","apple"]
 			}
-		}
+		]
 	}
 }

@@ -12,6 +12,7 @@ use serde::{Serialize, Deserialize};
 struct Item {
 	desc: Rc<String>,
 	can_take: bool,
+	names: Vec<String>,
 }
 
 #[derive(Debug,Clone,Deserialize,Serialize,PartialEq,Eq)]
@@ -20,7 +21,7 @@ struct Place {
 	ambient: Option<String>,
 	long: String,
 	moves: HashMap<String,String>,
-	objects: HashMap<String, Item>
+	objects: Vec<Item>
 }
 
 #[derive(Debug,Clone,Deserialize,Serialize,PartialEq,Eq)]
@@ -28,7 +29,37 @@ struct World {
 	map: HashMap<String,Place>,
 	location: String,
 	aliases: HashMap<String,String>,
-	backpack: HashMap<String,Item>,
+	backpack: Vec<Item>,
+}
+
+enum NameResolves {
+	Mulitple,
+	Single(usize),
+	Zero,
+	Empty_Query,
+}
+
+fn get_name(context :Vec<Item>, name :Vec<String>) -> NameResolves {
+	let mut acumulator :Vec<bool> = vec![true; context.len()];
+	if (name.len() == 0) {
+		return NameResolves::Empty_Query;
+	}
+	for word in name.iter() {	
+		for i in 0..context.len() {
+			if (!context[i].names.contains(word)) {
+				acumulator[i] = false;
+			}
+		}
+	}
+
+	if (acumulator.iter().filter(|&n| *n == true).count() > 1) {
+		return NameResolves::Mulitple;
+	}
+	if (acumulator.iter().filter(|&n| *n == true).count() == 0) {
+		return NameResolves::Zero;
+	}
+
+	return NameResolves::Single(acumulator.iter().position(|&x| x == true).unwrap());
 }
 
 fn command(mut input_str: String, world: &mut World, game_over: &mut bool) {
@@ -62,9 +93,9 @@ fn command(mut input_str: String, world: &mut World, game_over: &mut bool) {
 		Some(x) => x,
 		None => panic!("Room {:?} is not in map",world.location),
 	};
-	let mut input_iter = input.iter();
+	let mut input_iter = input.into_iter();
 	let start = input_iter.next().unwrap();
-	match &**start {
+	match &*start {
 		"help" 	=> {print!(
 "\
 help : dispalys avalable comands; world.aliases = ?
@@ -77,8 +108,8 @@ inventory <objects> : look at you backpack ; world.aliases i
 		"save" => {
 			match input_iter.next() {
 				Some(path) => {
-					match File::create(path) {
-						Err(why) => println!("couldn't open {}: {}", path, why),
+					match File::create(path.clone()) {
+						Err(why) => println!("couldn't open {}: {}", path.clone(), why),
 						Ok(mut file) => file.write_all(serde_json::to_string(world).unwrap().as_bytes()).unwrap(),
 					};
 				},
@@ -87,13 +118,13 @@ inventory <objects> : look at you backpack ; world.aliases i
 		}
 		"load" => match input_iter.next() {
 				Some(path) => {
-					match fs::read_to_string(path) {
+					match fs::read_to_string(path.clone()) {
 						Ok(x) => {
 							let deseralized: World = serde_json::from_str(&x).unwrap();
 							*world = deseralized; 
 							redisplay = true;
 						},
-						Err(x) => println!("couldn't open {}: {}",path,x),
+						Err(x) => println!("couldn't open {}: {}",path.clone(),x),
 					};
 				},
 				None => println!("You must specify a file path."),
@@ -103,7 +134,7 @@ inventory <objects> : look at you backpack ; world.aliases i
 		}
 		"go"	=> {
 			match input_iter.next() {
-				Some(dir) => match curent_room.moves.get(dir) {
+				Some(dir) => match curent_room.moves.get(&dir) {
 					Some(dest) => world.location = dest.to_string(),
 					None => println!("You can not go that way."),
 				},
@@ -119,51 +150,41 @@ inventory <objects> : look at you backpack ; world.aliases i
 			redisplay = true;
 		},
 		"take" => {
-			match input_iter.next() {
-				Some(thing) => {
-					match curent_room.objects.get(thing) {
-						Some(that) => {
-							if that.can_take {
-								println!("you take the {}", that.desc);
-								{world.backpack.insert(thing.to_string(),that.clone());}
-							} else {
-								println!("nice try but...");
-							}
-						},
-						None => println!("You can find that."),
-					};
-					if curent_room.objects.contains_key(thing) {
-						if curent_room.objects.get(thing).unwrap().can_take {
-							curent_room.objects.remove(thing);
-						}
+			match get_name(curent_room.objects.clone(), input_iter.collect()) {
+				NameResolves::Single(id) => {
+					if curent_room.objects[id].can_take {
+						println!("you take the {}", curent_room.objects[id].desc);
+						world.backpack.push(curent_room.objects[id].clone());
+						curent_room.objects.remove(id);
+					} else {
+						println!("nice try but...");
 					}
 				}
-				None => println!("You must specify a thing."),
+				NameResolves::Empty_Query => println!("You must specify a thing."),
+				NameResolves::Zero => println!("You cant find that."),
+				NameResolves::Mulitple => println!("Be more spacific please!"),
 			}	
 		},
 		"inventory" => {
 			for i in &world.backpack {
-				println!("you have {}", i.1.desc);
+				println!("you have {}", i.desc);
 			}
 		}
 		"drop" => {
-			match input_iter.next() {
-				Some(thing) => {
-					match world.backpack.get(thing) {
-						Some(that) => {
-							if that.can_take {
-								println!("you drop the {}", that.desc);
-								curent_room.objects.insert(thing.to_string(),that.clone());
-							} else {
-								println!("nice try but...");
-							}
-						},
-						None => println!("You can find that."),
-					};
-					world.backpack.remove(thing);
+			match get_name(world.backpack.clone(), input_iter.collect()) {
+				NameResolves::Single(id) => {
+					if world.backpack[id].can_take {
+						println!("you take the {}", world.backpack[id].desc);
+						curent_room.objects.push(world.backpack[id].clone());
+						world.backpack.remove(id);
+					} else {
+						println!("nice try but...");
+					}
 				}
-				None => println!("You must specify a thing."),
-			}
+				NameResolves::Empty_Query => println!("You must specify a thing."),
+				NameResolves::Zero => println!("You cant find that."),
+				NameResolves::Mulitple => println!("Be more spacific please!"),
+			}	
 		}
 		_ => println!("?"),
 	}
@@ -176,7 +197,7 @@ inventory <objects> : look at you backpack ; world.aliases i
 		println!("{}", new_room.desc);
 		println!("{}", new_room.long);
 		for i in &new_room.objects {
-			println!("you see a {}", i.1.desc);
+			println!("you see a {}", i.desc);
 		}
 	}
 }
@@ -199,7 +220,7 @@ fn main() {
 		map : serde_json::from_str(&fs::read_to_string("tree.json").unwrap()).unwrap(),
 		location : "_start".to_string(),
 		aliases : aliases,
-		backpack : HashMap::new(),
+		backpack : Vec::new(),
 	};
 
 	let mut game_over = false;

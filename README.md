@@ -4,25 +4,23 @@
 
 this is an attempt to alow 	the cration of symple text adventure games using JSON files
 
+main file : tree.json
+
 ##(curent) limitations
 
-###Multiple items of the same name are not suported and will merge when placed in the same context (room / backpack). [bug]
+###Identical items are weard
 
-###An item can have one name
-
-    you see a red apple
-    > take red
-    You can find that.
-    > take red apple
-    You can find that.
-    > take apple
-    you take the red apple
+    > i
+    you have a foobar
+    you have a foobar
+    > drop foobar
+    Be more spacific please!
 
 ##todo
 
-###short term (day)
+###short term (commit)
 
-rework item system
+fix spelling!
 
 ###long term
 
