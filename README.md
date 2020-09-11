@@ -20,7 +20,7 @@ main file : tree.json
 
 ### short term (commit)
 
-fix spelling!
+fix combat?
 
 ### long term
 

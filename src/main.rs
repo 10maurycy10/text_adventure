@@ -36,26 +36,26 @@ enum NameResolves {
 	Mulitple,
 	Single(usize),
 	Zero,
-	Empty_Query,
+	EmptyQuery,
 }
 
 fn get_name(context :Vec<Object>, name :Vec<String>) -> NameResolves {
 	let mut acumulator :Vec<bool> = vec![true; context.len()];
-	if (name.len() == 0) {
-		return NameResolves::Empty_Query;
+	if name.len() == 0 {
+		return NameResolves::EmptyQuery;
 	}
 	for word in name.iter() {	
 		for i in 0..context.len() {
-			if (!context[i].names.contains(word)) {
+			if !context[i].names.contains(word) {
 				acumulator[i] = false;
 			}
 		}
 	}
 
-	if (acumulator.iter().filter(|&n| *n == true).count() > 1) {
+	if acumulator.iter().filter(|&n| *n == true).count() > 1 {
 		return NameResolves::Mulitple;
 	}
-	if (acumulator.iter().filter(|&n| *n == true).count() == 0) {
+	if acumulator.iter().filter(|&n| *n == true).count() == 0 {
 		return NameResolves::Zero;
 	}
 
@@ -163,7 +163,7 @@ load [file] : load game data from json
 						println!("nice try but...");
 					}
 				}
-				NameResolves::Empty_Query => println!("You must specify a thing."),
+				NameResolves::EmptyQuery => println!("You must specify a thing."),
 				NameResolves::Zero => println!("You can't find that."),
 				NameResolves::Mulitple => println!("Be more specific please!"),
 			}	
@@ -184,7 +184,7 @@ load [file] : load game data from json
 						println!("nice try but...");
 					}
 				}
-				NameResolves::Empty_Query => println!("You must specify a thing."),
+				NameResolves::EmptyQuery => println!("You must specify a thing."),
 				NameResolves::Zero => println!("You can't find that."),
 				NameResolves::Mulitple => println!("Be more specific please!"),
 			}	
