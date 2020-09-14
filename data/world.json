@@ -1,0 +1,30 @@
+{
+	"_start" : {
+		"desc" : "you are standing on a grass clearing in a forest",
+		"long" : "there is a tree next to you.",
+		"moves" : {
+			"up" : "tree1"
+		},
+		"objects" : [
+			{
+				"desc" : "metal grate bolted to the ground",
+				"can_take" : false,
+				"names": ["metal","grate"]
+			}
+		]
+	},
+	"tree1" : {
+		"desc" : "you are up a tree.",
+		"long" : "you can see building in the west",
+		"moves" : {
+			"down" : "_start"
+		},
+		"objects" : [
+			{
+				"desc" : "red apple",
+				"can_take" : true,
+				"names" : ["red","apple"]
+			}
+		]
+	}
+}
