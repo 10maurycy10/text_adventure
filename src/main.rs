@@ -1,69 +1,17 @@
-use serde;
-use std::rc::Rc;
 use std::fs;
 use serde_json;
 use std::io;
 use std::collections::HashMap;
 use std::io::Write;
 use std::fs::File;
-use serde::{Serialize, Deserialize};
-
-#[derive(Debug,Clone,Deserialize,Serialize,PartialEq,Eq)]
-struct Object {
-	desc: Rc<String>,
-	can_take: bool,
-	names: Vec<String>,
-}
-
-#[derive(Debug,Clone,Deserialize,Serialize,PartialEq,Eq)]
-struct Place {
-	desc: String,
-	ambient: Option<String>,
-	long: String,
-	moves: HashMap<String,String>,
-	objects: Vec<Object>
-}
-
-#[derive(Debug,Clone,Deserialize,Serialize,PartialEq,Eq)]
-struct World {
-	map: HashMap<String,Place>,
-	location: String,
-	aliases: HashMap<String,String>,
-	backpack: Vec<Object>,
-}
-
-enum NameResolves {
-	Mulitple,
-	Single(usize),
-	Zero,
-	EmptyQuery,
-}
-
-fn get_name(context :Vec<Object>, name :Vec<String>) -> NameResolves {
-	let mut acumulator :Vec<bool> = vec![true; context.len()];
-	if name.len() == 0 {
-		return NameResolves::EmptyQuery;
-	}
-	for word in name.iter() {	
-		for i in 0..context.len() {
-			if !context[i].names.contains(word) {
-				acumulator[i] = false;
-			}
-		}
-	}
-
-	if acumulator.iter().filter(|&n| *n == true).count() > 1 {
-		return NameResolves::Mulitple;
-	}
-	if acumulator.iter().filter(|&n| *n == true).count() == 0 {
-		return NameResolves::Zero;
-	}
-
-	return NameResolves::Single(acumulator.iter().position(|&x| x == true).unwrap());
-}
+use clap::{Arg, App};
+use std::path::Path;
+mod world;
+use crate::world::World;
 
 fn command(mut input_str: String, world: &mut World, game_over: &mut bool) {
-	let mut redisplay = false;
+	 use crate::world::{NameResolves,get_name,print_room,print_amb};
+	 let mut redisplay = false;
 
 	if input_str.ends_with('\n') {
 		input_str.pop();
@@ -197,15 +145,24 @@ load [file] : load game data from json
 		None => panic!("Room {:?} is not in world.map",world.location),
 	};
 	if redisplay {
-		println!("{}", new_room.desc);
-		println!("{}", new_room.long);
-		for i in &new_room.objects {
-			println!("you see a {}", i.desc);
-		}
+		print_room(new_room);
 	}
+	print_amb(new_room);
 }
 
 fn main() {
+	let matches = App::new("Text Adventure")
+    	.version("0.1.0")
+    	.author("Mostly Me")
+    	.about("This is an text adventure game enginge")
+    	.arg(Arg::with_name("verbose-state")
+    	         .short("v")
+    	         .long("verbose-state")
+    	         .takes_value(false)
+    	         .help("Print the state at the end of the turn"))
+    	.get_matches();
+
+    let data = Path::new(".").join("data");
 	let mut aliases: HashMap<String,String> = HashMap::new();
 	aliases.insert("e".to_string(),"go east".to_string());
 	aliases.insert("s".to_string(),"go south".to_string());
@@ -220,13 +177,14 @@ fn main() {
 	aliases.insert("i".to_string(),"inventory".to_string());
 	
 	let mut world = World {
-		map : serde_json::from_str(&fs::read_to_string("tree.json").unwrap()).unwrap(),
+		map : serde_json::from_str(&fs::read_to_string(data.join("world.json")).unwrap()).unwrap(),
 		location : "_start".to_string(),
 		aliases : aliases,
 		backpack : Vec::new(),
 	};
 
 	let mut game_over = false;
+	let print_state :bool = matches.value_of("num").is_some();
 	command("look".to_string(), &mut world, &mut game_over);
 	while !game_over {
 		print!("> ");
@@ -234,5 +192,8 @@ fn main() {
 		let mut input_str = String::new();
 		io::stdin().read_line(&mut input_str).unwrap().to_string();
 		command(input_str, &mut world, &mut game_over);
+		if print_state {
+			println!("{:#?}", world);
+		}
 	}
 }
