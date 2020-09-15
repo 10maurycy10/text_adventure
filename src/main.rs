@@ -6,6 +6,7 @@ use std::io::Write;
 use std::fs::File;
 use clap::{Arg, App};
 use std::path::Path;
+use rand;
 mod world;
 use crate::world::World;
 
@@ -147,10 +148,13 @@ load [file] : load game data from json
 	if redisplay {
 		print_room(new_room);
 	}
-	print_amb(new_room);
+	if rand::random::<u8>() % 2 == 0 {
+		print_amb(new_room);
+	}
 }
 
 fn main() {
+
 	let matches = App::new("Text Adventure")
     	.version("0.1.0")
     	.author("Mostly Me")
