@@ -1,13 +1,15 @@
 [package]
-name = "tree"
+name = "text_adventure"
 version = "0.1.0"
 authors = ["10maurycy10 <10maurycy10@users.noreply.github.com>"]
 edition = "2018"
 readme = "README.md"
-homepage = "GPL-3.0+"
+license  = "GPL-3.0+"
 keywords = ["game", "text", "engine", "adventure"]
 categories = ["game-engines", "games"]
-discription = "a program to allow for the creation of simple text adventure games using JSON files"
+description = "a program to allow for the creation of simple text adventure games using JSON files"
+homepage = "https://github.com/10maurycy10/text_adventure"
+repository = "https://github.com/10maurycy10/text_adventure.git"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
