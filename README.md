@@ -2,7 +2,7 @@
 
 ## What is this
 
-this is an attempt to alow 	the cration of symple text adventure games using JSON files
+this is an attempt to allow the creation of simple text adventure games using JSON files
 
 main file : tree.json
 
@@ -20,10 +20,9 @@ main file : tree.json
 
 ### short term (commit)
 
-fix combat?
+add combat
 
 ### long term
 
-add combat
 
 add climb, break, use...

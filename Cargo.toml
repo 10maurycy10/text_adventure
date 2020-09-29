@@ -3,6 +3,11 @@ name = "tree"
 version = "0.1.0"
 authors = ["10maurycy10 <10maurycy10@users.noreply.github.com>"]
 edition = "2018"
+readme = "README.md"
+homepage = "GPL-3.0+"
+keywords = ["game", "text", "engine", "adventure"]
+categories = ["game-engines", "games"]
+discription = "a program to allow for the creation of simple text adventure games using JSON files"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
