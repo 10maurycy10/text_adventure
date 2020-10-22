@@ -13,7 +13,9 @@
 				"names": ["metal","grate"]
 			}
 		],
-		"critters" : []
+		"critters" : [
+			{"Name" : "cat"}
+		]
 	},
 	"tree1" : {
 		"desc" : "you are up a tree.",
@@ -23,9 +25,12 @@
 		},
 		"objects" : [
 			{
-				"desc" : "red apple",
+				"desc" : "rusty dagger",
+				"wepon" : {
+					"dam" : 50
+				},
 				"can_take" : true,
-				"names" : ["red","apple"]
+				"names" : ["rusty","dagger"]
 			}
 		],
 		"critters" : [
