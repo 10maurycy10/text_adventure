@@ -12,7 +12,8 @@
 				"can_take" : false,
 				"names": ["metal","grate"]
 			}
-		]
+		],
+		"critters" : []
 	},
 	"tree1" : {
 		"desc" : "you are up a tree.",
@@ -26,6 +27,9 @@
 				"can_take" : true,
 				"names" : ["red","apple"]
 			}
+		],
+		"critters" : [
+			{"Name" : "cat"}
 		]
 	}
 }

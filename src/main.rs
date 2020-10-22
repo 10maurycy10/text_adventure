@@ -102,7 +102,7 @@ load [file] : load game data from json
 			redisplay = true;
 		},
 		"take" => {
-			match get_name(curent_room.objects.clone(), input_iter.collect()) {
+			match get_name(&curent_room.objects.iter().map(|x| x.names.clone()).collect(), input_iter.collect()) {
 				NameResolves::Single(id) => {
 					if curent_room.objects[id].can_take {
 						println!("you take the {}", curent_room.objects[id].desc);
@@ -114,7 +114,7 @@ load [file] : load game data from json
 				}
 				NameResolves::EmptyQuery => println!("You must specify a thing."),
 				NameResolves::Zero => println!("You can't find that."),
-				NameResolves::Mulitple => println!("Be more specific please!"),
+				NameResolves::Mulitple(_) => println!("Be more specific please!"),
 			}	
 		},
 		"inventory" => {
@@ -123,10 +123,10 @@ load [file] : load game data from json
 			}
 		}
 		"drop" => {
-			match get_name(world.backpack.clone(), input_iter.collect()) {
+			match get_name(&world.backpack.iter().map(|x| x.names.clone()).collect(), input_iter.collect()) {
 				NameResolves::Single(id) => {
 					if world.backpack[id].can_take {
-						println!("you take the {}", world.backpack[id].desc);
+						println!("you drop the {}", world.backpack[id].desc);
 						curent_room.objects.push(world.backpack[id].clone());
 						world.backpack.remove(id);
 					} else {
@@ -135,7 +135,7 @@ load [file] : load game data from json
 				}
 				NameResolves::EmptyQuery => println!("You must specify a thing."),
 				NameResolves::Zero => println!("You can't find that."),
-				NameResolves::Mulitple => println!("Be more specific please!"),
+				NameResolves::Mulitple(_) => println!("Be more specific please!"),
 			}	
 		}
 		_ => println!("?"),
@@ -182,9 +182,16 @@ fn main() {
 	
 	let mut world = World {
 		map : serde_json::from_str(&fs::read_to_string(data.join("world.json")).unwrap()).unwrap(),
+		critters : serde_json::from_str(&fs::read_to_string(data.join("critters.json")).unwrap()).unwrap(),
 		location : "_start".to_string(),
 		aliases : aliases,
 		backpack : Vec::new(),
+	};
+
+	for room in world.map.iter_mut() {
+		for critter in room.1.critters.iter_mut() {
+			critter.unpack_init(&(world.critters)); //force all to be inited
+		}
 	};
 
 	let mut game_over = false;
