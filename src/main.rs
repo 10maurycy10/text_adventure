@@ -1,4 +1,5 @@
 use clap::{App, Arg};
+use serde_yaml;
 use serde_json;
 use std::collections::HashMap;
 use std::fs;
@@ -39,8 +40,8 @@ fn main() {
     aliases.insert("i".to_string(), "inventory".to_string());
 
     let mut world = World {
-        map: serde_json::from_str(&fs::read_to_string(data.join("world.json")).unwrap()).unwrap(),
-        critters: serde_json::from_str(&fs::read_to_string(data.join("critters.json")).unwrap())
+        map: serde_yaml::from_str(&fs::read_to_string(data.join("world.yml")).unwrap()).unwrap(),
+        critters: serde_yaml::from_str(&fs::read_to_string(data.join("critters.yml")).unwrap())
             .unwrap(),
         location: "_start".to_string(),
         aliases: aliases,

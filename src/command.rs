@@ -1,5 +1,5 @@
 use crate::world::World;
-use serde_json;
+use serde_yaml;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
@@ -61,7 +61,7 @@ load [file] : load game data from json
                 match File::create(path.clone()) {
                     Err(why) => println!("couldn't open {}: {}", path.clone(), why),
                     Ok(mut file) => file
-                        .write_all(serde_json::to_string(world).unwrap().as_bytes())
+                        .write_all(serde_yaml::to_string(world).unwrap().as_bytes())
                         .unwrap(),
                 };
             }
@@ -71,7 +71,7 @@ load [file] : load game data from json
             Some(path) => {
                 match fs::read_to_string(path.clone()) {
                     Ok(x) => {
-                        let deseralized: World = serde_json::from_str(&x).unwrap();
+                        let deseralized: World = serde_yaml::from_str(&x).unwrap();
                         *world = deseralized;
                         redisplay = true;
                     }
@@ -154,7 +154,7 @@ load [file] : load game data from json
             match input.len() {
                 1 => println!("What?"),
                 2 => {
-                    let target_id = match (get_name(
+                    let _target_id = match get_name(
                         &curent_room
                             .critters
                             .iter()
@@ -165,7 +165,7 @@ load [file] : load game data from json
                             .map(|x| x.to_string())
                             .collect::<Vec<String>>())
                         .to_vec(),
-                    )) {
+                    ) {
                         NameResolves::EmptyQuery => {
                             println!("JUST TELL ME WHAT TO ATTACK ALREADY!");
                         }
@@ -199,7 +199,7 @@ load [file] : load game data from json
                                                 weppon.f()
                                             );
                                             let new_hp = target.hp - data.dam;
-                                            if (new_hp > 0) {
+                                            if new_hp > 0 {
                                                 let mut n_c = target.clone();
                                                 n_c.hp = new_hp;
                                                 curent_room.critters[target_id].mutate(n_c);

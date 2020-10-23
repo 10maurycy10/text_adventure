@@ -31,6 +31,11 @@
 				},
 				"can_take" : true,
 				"names" : ["rusty","dagger"]
+			},
+			{
+				"desc" : "a red apple",
+				"can_take" : true,
+				"names" : ["red","apple"]
 			}
 		],
 		"critters" : [

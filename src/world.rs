@@ -138,14 +138,14 @@ pub fn print_room(spot: &Place) {
 
 pub fn print_amb(spot: &Place) {
     match &spot.ambient {
-        Some(x) => println!("{}", x),
+        Some(x) => println!("*{}", x),
         None => (),
     }
     for i in &spot.critters {
         match i.unpack().noise {
             Some(a) => {
                 if rand::thread_rng().gen_range(0, 5) == 0 {
-                    println!("{}", a);
+                    println!("*{}", a);
                 }
             }
             None => (),
