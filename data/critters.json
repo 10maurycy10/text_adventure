@@ -5,5 +5,12 @@
 		"name" : ["cat", "house", "inocent"],
 		"noise" : "meow",
 		"hurt" : "SSSSS"
+	},
+	"d0g" : {
+		"hp" : 50,
+		"desc" : "an annoying d0g",
+		"name" : ["dog", "d0g", "annoying"],
+		"noise" : "woof",
+		"hurt" : "WOOF WOOF"
 	}
 }
