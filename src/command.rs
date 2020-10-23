@@ -1,4 +1,4 @@
-use crate::world::World;
+use crate::world::*;
 use serde_yaml;
 use std::fs;
 use std::fs::File;
@@ -35,9 +35,9 @@ pub fn command(mut input_str: String, world: &mut World, game_over: &mut bool) {
         }
         None => (),
     };
-    let curent_room = match world.map.get_mut(&world.location) {
+    let curent_room = match world.map.get_mut(&world.player.location) {
         Some(x) => x,
-        None => panic!("Room {:?} is not in map", world.location),
+        None => panic!("Room {:?} is not in map", world.player.location),
     };
     let mut input_iter = input.into_iter();
     let start = input_iter.next().unwrap();
@@ -86,7 +86,7 @@ load [file] : load game data from json
         "go" => {
             match input_iter.next() {
                 Some(dir) => match curent_room.moves.get(&dir) {
-                    Some(dest) => world.location = dest.to_string(),
+                    Some(dest) => world.player.location = dest.to_string(),
                     None => println!("You can't go that way."),
                 },
                 None => println!("You must specify a direction."),
@@ -123,6 +123,7 @@ load [file] : load game data from json
             }
         }
         "inventory" => {
+            println!("HP : {}/{}",world.player.hp,world.player.max_hp);
             for i in &world.backpack {
                 println!("you have {}", i.desc);
             }
@@ -198,10 +199,9 @@ load [file] : load game data from json
                                                 target.desc,
                                                 weppon.f()
                                             );
-                                            let new_hp = target.hp - data.dam;
-                                            if new_hp > 0 {
-                                                let mut n_c = target.clone();
-                                                n_c.hp = new_hp;
+                                            let mut n_c = target.clone();
+                                            n_c.hurt(data.dam);
+                                            if (!n_c.is_dead()) {    
                                                 curent_room.critters[target_id].mutate(n_c);
                                                 println!("{}", target.hurt);
                                             } else {
@@ -226,10 +226,23 @@ load [file] : load game data from json
         _ => println!("?"),
     }
 
-    let new_room = match world.map.get_mut(&world.location) {
+    if (world.player.hp < 0) {
+        println!("you die");
+        *game_over = true;
+        return;
+    }
+
+    let new_room = match world.map.get_mut(&world.player.location) {
         Some(x) => x,
-        None => panic!("Room {:?} is not in world.map", world.location),
+        None => panic!("Room {:?} is not in world.map", world.player.location),
     };
+
+    for i in new_room.critters.iter_mut() {
+        let mut c = i.unpack();
+        c.tick(&mut world.player);
+        i.mutate(c)
+    }
+
     if redisplay {
         print_room(new_room);
     }

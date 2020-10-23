@@ -1,7 +1,11 @@
 ---
 d0g:
+  attack:
+    name: bites
+    dam: 5
   hp: 50
   desc: an annoying d0g
+  alignment: Fine
   name:
     - dog
     - d0g
@@ -9,11 +13,28 @@ d0g:
   noise: woof
   hurt: WOOF WOOF
 cat:
+  attack:
+    name: claws
+    dam: 20
   hp: 100
   desc: an inocent house cat
+  alignment: Fine
   name:
     - cat
     - house
     - inocent
   noise: meow
   hurt: SSSSS
+goblin:
+  attack:
+    name: punches
+    dam: 10
+  hp: 300
+  desc: an generic unarmed goblin
+  alignment: Evil
+  name:
+    - generic
+    - goblin
+    - unarmed
+  noise: g-rr
+  hurt: GRRRRR

@@ -1,3 +1,4 @@
+use std::io::Write;
 use rand;
 use rand::Rng;
 use serde;
@@ -5,11 +6,44 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+pub enum Alignment {
+	Fine,
+	Evil,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+pub enum Anoyance {
+	Chill,
+	Mad,
+}
+
+impl Default for Anoyance {
+	fn default() -> Self { Anoyance::Chill }
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+pub struct Attack {
+	name: String,
+	dam: i32
+}
+
+/// a contaner for critter data
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Critter {
-    pub hp: i32, //we're not making DF
+	/// the hit-points (THIS IS NOT DF)
+	pub attack: Attack, 
+    pub hp: i32,
+    /// the discrition
     pub desc: String,
+    /// the names
     pub name: Vec<String>,
+    /// the noise made by the critter
     pub noise: Option<String>,
+    /// optional
+	#[serde(default)]
+    pub anoyance: Anoyance,
+    pub alignment: Alignment,
+    /// the hurt noise
     pub hurt: String,
 }
 
@@ -38,7 +72,7 @@ impl Object {
         format!(
             "{} {}",
             self.desc,
-            if self.wepon.is_some() { "WPN" } else { "" }
+            if self.wepon.is_some() { "[WPN]" } else { "" }
         )
     }
 }
@@ -54,12 +88,18 @@ pub struct Place {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+pub struct Player {
+	pub hp: i32,
+	pub max_hp: i32,
+	pub location: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct World {
     pub map: HashMap<String, Place>,
-    pub location: String,
     pub aliases: HashMap<String, String>,
     pub backpack: Vec<Object>,
-    /// master copys of all critters
+ 	pub player: Player,	
     pub critters: HashMap<String, Critter>,
 }
 
@@ -124,6 +164,26 @@ pub fn get_name(context: &Vec<Vec<String>>, name: Vec<String>) -> NameResolves {
     }
 }
 
+impl Critter {
+	pub fn tick(&mut self, player :&mut Player) {
+		match self.anoyance {
+			Anoyance::Chill => (),
+			Anoyance::Mad => {
+				let attack = &self.attack;
+				println!("{} {} you.", self.desc, attack.name);
+				player.hp -= attack.dam;
+			} 
+		}
+	}
+	pub fn hurt(&mut self, dam : i32) {
+		self.anoyance = Anoyance::Mad;
+		self.hp -= dam;
+	}
+	pub fn is_dead(&self) -> bool {
+		self.hp < 0
+	}
+}
+
 pub fn print_room(spot: &Place) {
     println!("{}", spot.desc);
     println!("{}", spot.long);
@@ -138,14 +198,14 @@ pub fn print_room(spot: &Place) {
 
 pub fn print_amb(spot: &Place) {
     match &spot.ambient {
-        Some(x) => println!("*{}", x),
+        Some(x) => println!("{}", x),
         None => (),
     }
     for i in &spot.critters {
         match i.unpack().noise {
             Some(a) => {
                 if rand::thread_rng().gen_range(0, 5) == 0 {
-                    println!("*{}", a);
+                    println!("{}",a);
                 }
             }
             None => (),

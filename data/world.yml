@@ -19,21 +19,14 @@ tree:
         - apple
       wepon: ~
   critters:
-    - Critter:
-        hp: 100
-        desc: an inocent house cat
-        name:
-          - cat
-          - house
-          - inocent
-        noise: meow
-        hurt: SSSSS
+    - Name: cat
 _start:
   desc: you are standing on a grass clearing in a forest
   long: there is a tree next to you.
   ambient: you hear a faint groning noises
   moves:
     up: tree
+    down: cave1
   objects:
     - desc: metal grate bolted to the ground
       can_take: false
@@ -41,13 +34,21 @@ _start:
         - metal
         - grate
       wepon: ~
+    - desc: an open trap door
+      can_take: false
+      names:
+        - trap
+        - open
+        - door
+      wepon: ~
+  
   critters:
-    - Critter:
-        hp: 50
-        desc: an annoying d0g
-        name:
-          - dog
-          - d0g
-          - annoying
-        noise: woof
-        hurt: WOOF WOOF
+    - Name: d0g
+cave1:
+  desc: you are in a dimly lit room
+  long: a lader leads up to the outside
+  moves:
+    up: _start
+  objects: []
+  critters:
+    - Name: goblin

@@ -9,7 +9,7 @@ use std::path::Path;
 mod command;
 mod world;
 use crate::command::command;
-use crate::world::World;
+use crate::world::*;
 
 fn main() {
     let matches = App::new("Text Adventure")
@@ -43,7 +43,8 @@ fn main() {
         map: serde_yaml::from_str(&fs::read_to_string(data.join("world.yml")).unwrap()).unwrap(),
         critters: serde_yaml::from_str(&fs::read_to_string(data.join("critters.yml")).unwrap())
             .unwrap(),
-        location: "_start".to_string(),
+        player: serde_yaml::from_str(&fs::read_to_string(data.join("player.yml")).unwrap())
+            .unwrap(),
         aliases: aliases,
         backpack: Vec::new(),
     };
@@ -51,6 +52,14 @@ fn main() {
     for room in world.map.iter_mut() {
         for critter in room.1.critters.iter_mut() {
             critter.unpack_init(&(world.critters)); //force all to be inited
+            match critter.unpack().alignment { //init anger
+                Alignment::Fine => (),
+                Alignment::Evil => {
+                    let mut new = critter.unpack();
+                    new.anoyance = Anoyance::Mad;
+                    critter.mutate(new);
+                },
+            }
         }
     }
 
