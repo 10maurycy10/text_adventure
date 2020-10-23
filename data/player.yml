@@ -1,4 +1,5 @@
 ---
 hp: 100
 location: _start
-max_hp: 100
+critter:
+  Name: player

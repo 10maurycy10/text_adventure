@@ -94,10 +94,6 @@ load [file] : load game data from json
             redisplay = true;
         }
         "look" => {
-            match input_iter.next() {
-                Some(_obj) => unimplemented!(),
-                None => (),
-            }
             redisplay = true;
         }
         "take" => {
@@ -112,7 +108,9 @@ load [file] : load game data from json
                 NameResolves::Results(ids) => {
                     if curent_room.objects[ids[0]].can_take {
                         println!("you take the {}", curent_room.objects[ids[0]].f());
-                        world.backpack.push(curent_room.objects[ids[0]].clone());
+                        let mut c = world.player.critter.unpack();
+                        c.backpack.push(curent_room.objects[ids[0]].clone());
+                        world.player.critter.mutate(c);
                         curent_room.objects.remove(ids[0]);
                     } else {
                         println!("nice try but...");
@@ -123,30 +121,34 @@ load [file] : load game data from json
             }
         }
         "inventory" => {
-            println!("HP : {}/{}",world.player.hp,world.player.max_hp);
-            for i in &world.backpack {
+            println!("HP : {}/{}",world.player.critter.unpack().hp,world.player.critter.unpack().max_hp);
+            for i in &world.player.critter.unpack().backpack {
                 println!("you have {}", i.desc);
             }
         }
         "drop" => {
+            let mut c = world.player.critter.unpack();
             match get_name(
-                &world.backpack.iter().map(|x| x.names.clone()).collect(),
+                &c.backpack.iter().map(|x| x.names.clone()).collect(),
                 input_iter.collect(),
             ) {
                 NameResolves::Results(ids) => {
-                    if world.backpack[ids[0]].can_take {
-                        println!("you drop the {}", world.backpack[ids[0]].f());
-                        curent_room.objects.push(world.backpack[ids[0]].clone());
-                        world.backpack.remove(ids[0]);
+                    if c.backpack[ids[0]].can_take {
+                        println!("you drop the {}", c.backpack[ids[0]].f());
+                        curent_room.objects.push(c.backpack[ids[0]].clone());
+                        
+                        c.backpack.remove(ids[0]);
                     } else {
                         println!("nice try but...");
                     }
                 }
                 NameResolves::EmptyQuery => println!("You must specify a thing."),
                 NameResolves::Zero => println!("You can't find that."),
-            }
+            };
+            world.player.critter.mutate(c);
         }
         "attack" => {
+            let c = world.player.critter.unpack();
             let input_unsplit_vec = input_iter.collect::<Vec<_>>();
             let input = input_unsplit_vec
                 .split(|x| *x == "with")
@@ -177,7 +179,7 @@ load [file] : load game data from json
                             let target_id = target_ids[0];
                             let target = curent_room.critters[target_id].unpack();
                             match get_name(
-                                &world.backpack.iter().map(|x| x.names.clone()).collect(),
+                                &c.backpack.iter().map(|x| x.names.clone()).collect(),
                                 (*input[1]
                                     .iter()
                                     .map(|x| x.to_string())
@@ -191,17 +193,18 @@ load [file] : load game data from json
                                     println!("You cant find that that.");
                                 }
                                 NameResolves::Results(weppon_ids) => {
-                                    let weppon = &world.backpack[weppon_ids[0]];
+                                    let weppon = &c.backpack[weppon_ids[0]];
                                     match weppon.wepon {
                                         Some(ref data) => {
                                             println!(
-                                                "you attack {} with {}",
+                                                "you {} {} with {}",
+                                                data.name.p,
                                                 target.desc,
                                                 weppon.f()
                                             );
                                             let mut n_c = target.clone();
                                             n_c.hurt(data.dam);
-                                            if (!n_c.is_dead()) {    
+                                            if !n_c.is_dead() {    
                                                 curent_room.critters[target_id].mutate(n_c);
                                                 println!("{}", target.hurt);
                                             } else {
@@ -226,12 +229,6 @@ load [file] : load game data from json
         _ => println!("?"),
     }
 
-    if (world.player.hp < 0) {
-        println!("you die");
-        *game_over = true;
-        return;
-    }
-
     let new_room = match world.map.get_mut(&world.player.location) {
         Some(x) => x,
         None => panic!("Room {:?} is not in world.map", world.player.location),
@@ -241,6 +238,12 @@ load [file] : load game data from json
         let mut c = i.unpack();
         c.tick(&mut world.player);
         i.mutate(c)
+    }
+
+    if world.player.critter.unpack().hp < 0 {
+        println!("you die");
+        *game_over = true;
+        return;
     }
 
     if redisplay {

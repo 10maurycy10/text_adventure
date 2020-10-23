@@ -12,6 +12,10 @@ tree:
         - dagger
       wepon:
         dam: 50
+        attack: 
+          p: "stab"
+          s: "stabs"
+          pt: "stabed"
     - desc: a red apple
       can_take: true
       names:

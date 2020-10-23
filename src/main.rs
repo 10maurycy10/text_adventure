@@ -1,6 +1,6 @@
 use clap::{App, Arg};
 use serde_yaml;
-use serde_json;
+
 use std::collections::HashMap;
 use std::fs;
 use std::io;
@@ -46,8 +46,9 @@ fn main() {
         player: serde_yaml::from_str(&fs::read_to_string(data.join("player.yml")).unwrap())
             .unwrap(),
         aliases: aliases,
-        backpack: Vec::new(),
     };
+
+    world.player.critter.unpack_init(&world.critters);
 
     for room in world.map.iter_mut() {
         for critter in room.1.critters.iter_mut() {

@@ -1,9 +1,17 @@
-use std::io::Write;
+
 use rand;
 use rand::Rng;
 use serde;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+
+/// punch punches punched 
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+pub struct Action {
+    pub p: String,
+    pub s: String,
+    pub pt: String
+}
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub enum Alignment {
@@ -21,18 +29,20 @@ impl Default for Anoyance {
 	fn default() -> Self { Anoyance::Chill }
 }
 
+/// natural atack
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Attack {
-	name: String,
-	dam: i32
+	pub name: Action,
+	pub dam: i32
 }
 
 /// a contaner for critter data
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Critter {
-	/// the hit-points (THIS IS NOT DF)
 	pub attack: Attack, 
+    /// the hit-points (THIS IS NOT DF)
     pub hp: i32,
+    pub max_hp: i32,
     /// the discrition
     pub desc: String,
     /// the names
@@ -45,6 +55,9 @@ pub struct Critter {
     pub alignment: Alignment,
     /// the hurt noise
     pub hurt: String,
+    /// optional
+    #[serde(default)]
+    pub backpack: Vec<Object>,
 }
 
 /// wraper for critters
@@ -55,16 +68,11 @@ pub enum LazzyCritter {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
-pub struct WeponData {
-    pub dam: i32,
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Object {
     pub desc: String,
     pub can_take: bool,
     pub names: Vec<String>,
-    pub wepon: Option<WeponData>,
+    pub wepon: Option<Attack>,
 }
 
 impl Object {
@@ -89,8 +97,7 @@ pub struct Place {
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Player {
-	pub hp: i32,
-	pub max_hp: i32,
+	pub critter: LazzyCritter,
 	pub location: String,
 }
 
@@ -98,7 +105,6 @@ pub struct Player {
 pub struct World {
     pub map: HashMap<String, Place>,
     pub aliases: HashMap<String, String>,
-    pub backpack: Vec<Object>,
  	pub player: Player,	
     pub critters: HashMap<String, Critter>,
 }
@@ -167,11 +173,13 @@ pub fn get_name(context: &Vec<Vec<String>>, name: Vec<String>) -> NameResolves {
 impl Critter {
 	pub fn tick(&mut self, player :&mut Player) {
 		match self.anoyance {
-			Anoyance::Chill => (),
+			Anoyance::Chill => (),   
 			Anoyance::Mad => {
 				let attack = &self.attack;
-				println!("{} {} you.", self.desc, attack.name);
-				player.hp -= attack.dam;
+				println!("{} {} you.", self.desc, attack.name.s);
+				let mut c = player.critter.unpack();
+                c.hp -= attack.dam;
+                player.critter.mutate(c);
 			} 
 		}
 	}
