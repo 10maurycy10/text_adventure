@@ -1,7 +1,10 @@
 ---
 d0g:
   attack:
-    attack: bites
+    name:
+      s: "bite"
+      p: "bites"
+      pt: "bit"
     dam: 5
   hp: 50
   max_hp: 50
@@ -15,7 +18,7 @@ d0g:
   hurt: WOOF WOOF
 cat:
   attack:
-    attack: 
+    name: 
       s: "claw"
       p: "claws"
       pt: "clawed"
@@ -32,7 +35,7 @@ cat:
   hurt: SSSSS
 goblin:
   attack:
-    attack: 
+    name: 
       s: "punch"
       p: "punches"
       pt: "punched"
@@ -49,7 +52,7 @@ goblin:
   hurt: GRRRRR
 player:
   attack:
-    attack: 
+    name: 
       p : "kick"
       s : "kicks"
       pt: "kicked"

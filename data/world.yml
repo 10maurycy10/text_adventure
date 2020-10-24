@@ -12,7 +12,7 @@ tree:
         - dagger
       wepon:
         dam: 50
-        attack: 
+        name: 
           p: "stab"
           s: "stabs"
           pt: "stabed"
@@ -23,7 +23,7 @@ tree:
         - apple
       wepon: ~
   critters:
-    - Name: cat
+    - Name: player
 _start:
   desc: you are standing on a grass clearing in a forest
   long: there is a tree next to you.
