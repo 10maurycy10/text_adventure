@@ -75,19 +75,20 @@ impl Default for Critter {
         Critter {
             attack : Attack {
                 name : Action {
-                    s : &"",
-                    p : &"",
-                    sp : &"",
+                    s : "".to_string(),
+                    p : "".to_string(),
+                    pt : "".to_string(),
                 },
-                dam : 0,
-            }
+                dam : 0
+            },
             hp : 0,
+            name : vec!("".to_string()),
             max_hp : 1,
-            desc: &"",
+            desc: "".to_string(),
             noise: None,
             anoyance: Anoyance::Chill,
             alignment: Alignment::Fine,
-            hurt : &"",
+            hurt : "".to_string(),
             backpack: Vec::new()
         }
     }
@@ -272,22 +273,22 @@ mod tests {
     use super::*;
     #[test]
     fn test_lazzy_critter_init() {
-        let mut c = LazzyCritter::Name(&"my-c");
-        let mut map: <String,Critter> = HashMap::new();
-        map.insert("my-c", Critter::default());
-        c.unpack_init(&map)
+        let mut c = LazzyCritter::Name("my-c".to_string());
+        let mut map: HashMap<String,Critter> = HashMap::new();
+        map.insert("my-c".to_string(), Critter::default());
+        c.unpack_init(&map);
         assert_eq!(c, Critter::default());
     }
     #[should_panic]
     #[test]
     fn test_lazzy_critter_uninit_panic() {
-        let mut c = LazzyCritter::Name(&"my-c");
-        let mut map: <String,Critter> = HashMap::new();
-        c.unpack_init(&map),
+        let mut c = LazzyCritter::Name("my-c".to_string());
+        let mut map: HashMap<String,Critter> = HashMap::new();
+        c.unpack_init(&map);
     }
     #[test]
     fn test_critter_dead() {
-        let mut c = Critter::default()
+        let mut c = Critter::default();
         c.hp = 1;
         assert_eq!(c.is_dead(), false);
         c.hurt(1);
