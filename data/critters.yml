@@ -7,7 +7,7 @@ d0g:
       pt: "bit"
     dam: 5
   hp: 50
-  max_hp: 50
+  max_hp: 19
   desc: an annoying d0g
   alignment: Fine
   name:

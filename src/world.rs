@@ -70,6 +70,29 @@ pub struct Critter {
     pub backpack: Vec<Object>,
 }
 
+impl Default for Critter {
+    fn default() -> Self {
+        Critter {
+            attack : Attack {
+                name : Action {
+                    s : &"",
+                    p : &"",
+                    sp : &"",
+                },
+                dam : 0,
+            }
+            hp : 0,
+            max_hp : 1,
+            desc: &"",
+            noise: None,
+            anoyance: Anoyance::Chill,
+            alignment: Alignment::Fine,
+            hurt : &"",
+            backpack: Vec::new()
+        }
+    }
+}
+
 /// ### wraper for critters
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub enum LazzyCritter {
@@ -241,5 +264,35 @@ pub fn print_amb(spot: &Place) {
             }
             None => (),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_lazzy_critter_init() {
+        let mut c = LazzyCritter::Name(&"my-c");
+        let mut map: <String,Critter> = HashMap::new();
+        map.insert("my-c", Critter::default());
+        c.unpack_init(&map)
+        assert_eq!(c, Critter::default());
+    }
+    #[should_panic]
+    #[test]
+    fn test_lazzy_critter_uninit_panic() {
+        let mut c = LazzyCritter::Name(&"my-c");
+        let mut map: <String,Critter> = HashMap::new();
+        c.unpack_init(&map),
+    }
+    #[test]
+    fn test_critter_dead() {
+        let mut c = Critter::default()
+        c.hp = 1;
+        assert_eq!(c.is_dead(), false);
+        c.hurt(1);
+        assert_eq!(c.is_dead(), false);
+        c.hurt(1);
+        assert_eq!(c.is_dead(), true);
     }
 }

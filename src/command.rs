@@ -68,7 +68,7 @@ time : you sit arround ; aliases = .
                 };
             }
             None => println!("You must specify a file path."),
-        },
+                    },
         "load" => match input_iter.next() {
             Some(path) => {
                 match fs::read_to_string(path.clone()) {
