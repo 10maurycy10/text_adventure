@@ -4,9 +4,10 @@ use std::fs;
 use std::fs::File;
 use std::io::Write;
 
+/// ### pharse command and do it.
 pub fn command(mut input_str: String, world: &mut World, game_over: &mut bool) {
-    use crate::world::{get_name, print_amb, print_room, NameResolves};
     let mut redisplay = false;
+    let mut time = true;
 
     if input_str.ends_with('\n') {
         input_str.pop();
@@ -46,13 +47,14 @@ pub fn command(mut input_str: String, world: &mut World, game_over: &mut bool) {
             print!(
                 "\
 help : displays available commands; world.aliases = ?
-go [north, south, west, east, up, down] : move in a direction; world.aliases = n s e w u d
+go [north, south, west, east, up, down] : move in a direction; aliases = n s e w u d
 take [objects] : take an objects; world.aliases = t [objects]
 drop [object] : drop an object form 
-look [objects] : look at an object's you ; world.aliases l
-inventory <objects> : look at you backpack ; world.aliases i
+look [objects] : look at an object's you ; aliases l
+inventory <objects> : look at you backpack ; aliases i
 save [file] : save game data to json
 load [file] : load game data from json
+time : you sit arround ; aliases = .
 "
             );
         }
@@ -155,7 +157,50 @@ load [file] : load game data from json
                 .map(|xs| xs.iter().collect::<Vec<_>>())
                 .collect::<Vec<_>>();
             match input.len() {
-                1 => println!("What?"),
+                1 => {
+                    let _target_id = match get_name(
+                        &curent_room
+                            .critters
+                            .iter()
+                            .map(|x| x.unpack().name.clone())
+                            .collect(),
+                        (*input[0]
+                            .iter()
+                            .map(|x| x.to_string())
+                            .collect::<Vec<String>>())
+                        .to_vec(),
+                    ) {
+                        NameResolves::EmptyQuery => {
+                            println!("JUST TELL ME WHAT TO ATTACK ALREADY!");
+                            time = false;
+                        },
+                        NameResolves::Zero => {
+                            println!("You cant see that.");
+                            time = false;
+                        },
+                        NameResolves::Results(ids) => {
+                            let target_id = ids[0];
+                            let target = curent_room.critters[target_id].unpack();
+                            println!(
+                                "you {} {}",
+                                c.attack.name.p,
+                                target.desc
+                            );
+                            let mut n_c = target.clone();
+                            n_c.hurt(c.attack.dam);
+                            if !n_c.is_dead() {    
+                                curent_room.critters[target_id].mutate(n_c);
+                                println!("{}", target.hurt);
+                            } else {
+                                println!(
+                                    "you kill {}",
+                                    target.desc
+                                );
+                                curent_room.critters.remove(target_id);
+                            };
+                        }   
+                    };
+                },
                 2 => {
                     let _target_id = match get_name(
                         &curent_room
@@ -171,9 +216,11 @@ load [file] : load game data from json
                     ) {
                         NameResolves::EmptyQuery => {
                             println!("JUST TELL ME WHAT TO ATTACK ALREADY!");
+                            time = false;
                         }
                         NameResolves::Zero => {
                             println!("You cant see that.");
+                            time = false;
                         }
                         NameResolves::Results(target_ids) => {
                             let target_id = target_ids[0];
@@ -188,9 +235,11 @@ load [file] : load game data from json
                             ) {
                                 NameResolves::EmptyQuery => {
                                     println!("JUST TELL ME WHAT TO USE!");
+                                    time = false;
                                 }
                                 NameResolves::Zero => {
                                     println!("You cant find that that.");
+                                    time = false;
                                 }
                                 NameResolves::Results(weppon_ids) => {
                                     let weppon = &c.backpack[weppon_ids[0]];
@@ -216,17 +265,27 @@ load [file] : load game data from json
                                                 curent_room.critters.remove(target_id);
                                             }
                                         }
-                                        None => println!("but..."),
+                                        None => {
+                                            println!("but...");
+                                            time = false;
+                                        },
                                     };
                                 }
                             }
                         }
                     };
                 }
-                _ => println!("Come ON!"),
+                _ => {
+                    println!("Come ON!");
+                    time = false;
+                },
             }
-        }
-        _ => println!("?"),
+        },
+        "time" => (),
+        _ => {
+            println!("?");
+            time = false;
+        },
     }
 
     let new_room = match world.map.get_mut(&world.player.location) {
@@ -234,10 +293,12 @@ load [file] : load game data from json
         None => panic!("Room {:?} is not in world.map", world.player.location),
     };
 
-    for i in new_room.critters.iter_mut() {
-        let mut c = i.unpack();
-        c.tick(&mut world.player);
-        i.mutate(c)
+    if time {
+        for i in new_room.critters.iter_mut() {
+            let mut c = i.unpack();
+            c.tick(&mut world.player);
+            i.mutate(c)
+        }
     }
 
     if world.player.critter.unpack().hp < 0 {

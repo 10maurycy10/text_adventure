@@ -6,8 +6,10 @@ use std::fs;
 use std::io;
 use std::io::Write;
 use std::path::Path;
-mod command;
+
 mod world;
+mod command;
+
 use crate::command::command;
 use crate::world::*;
 
@@ -38,6 +40,7 @@ fn main() {
     aliases.insert("?".to_string(), "help".to_string());
     aliases.insert("l".to_string(), "look".to_string());
     aliases.insert("i".to_string(), "inventory".to_string());
+    aliases.insert(".".to_string(), "time".to_string());
 
     let mut world = World {
         map: serde_yaml::from_str(&fs::read_to_string(data.join("world.yml")).unwrap()).unwrap(),

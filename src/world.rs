@@ -1,10 +1,10 @@
-
 use rand;
 use rand::Rng;
 use serde;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+/// ### a colection of names to avoid gramer errors
 /// punch punches punched 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Action {
@@ -13,15 +13,22 @@ pub struct Action {
     pub pt: String
 }
 
+
+/// ### the default behavior of critters
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub enum Alignment {
-	Fine,
+	/// chill unless attacked
+    Fine,
+    /// always mad
 	Evil,
 }
 
+/// ### the curent mood
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub enum Anoyance {
+    ///sits around
 	Chill,
+    ///attacks
 	Mad,
 }
 
@@ -29,44 +36,50 @@ impl Default for Anoyance {
 	fn default() -> Self { Anoyance::Chill }
 }
 
-/// natural atack
+/// ### natural atack
+/// The attack for a critter that dose not have items
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Attack {
 	pub name: Action,
 	pub dam: i32
 }
 
-/// a contaner for critter data
+/// ### a contaner for critter data
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Critter {
+    /// ### the natural attack
 	pub attack: Attack, 
-    /// the hit-points (THIS IS NOT DF)
+    /// ### the hit-points (THIS IS NOT DF)
     pub hp: i32,
     pub max_hp: i32,
-    /// the discrition
+    /// ### the discrition
     pub desc: String,
-    /// the names
+    /// ### the names
     pub name: Vec<String>,
-    /// the noise made by the critter
+    /// ### the noise made by the critter
     pub noise: Option<String>,
-    /// optional
+    /// ### optional
 	#[serde(default)]
     pub anoyance: Anoyance,
     pub alignment: Alignment,
-    /// the hurt noise
+    /// ### the hurt noise
     pub hurt: String,
-    /// optional
+    /// ### optional
+    /// not used by npc (for now)
     #[serde(default)]
     pub backpack: Vec<Object>,
 }
 
-/// wraper for critters
+/// ### wraper for critters
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub enum LazzyCritter {
+    /// look up address
     Name(String),
+    /// the raw data
     Critter(Critter),
 }
 
+/// ### an Item
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Object {
     pub desc: String,
@@ -76,6 +89,7 @@ pub struct Object {
 }
 
 impl Object {
+    /// ### generate a name
     pub fn f(&self) -> String {
         format!(
             "{} {}",
@@ -85,6 +99,8 @@ impl Object {
     }
 }
 
+
+/// ### a location
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Place {
     desc: String,
@@ -95,12 +111,15 @@ pub struct Place {
     pub critters: Vec<LazzyCritter>,
 }
 
+/// ### the data for player data
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Player {
+    /// the critter used for all other data
 	pub critter: LazzyCritter,
 	pub location: String,
 }
 
+/// ### a contaner for game data
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct World {
     pub map: HashMap<String, Place>,
@@ -110,6 +129,7 @@ pub struct World {
 }
 
 impl LazzyCritter {
+    /// unpack w/ lookup
     pub fn unpack_init(&mut self, ct: &HashMap<String, Critter>) -> Critter {
         match self {
             LazzyCritter::Name(x) => {
@@ -129,6 +149,7 @@ impl LazzyCritter {
             LazzyCritter::Critter(x) => x.clone(),
         }
     }
+    /// change data
     pub fn mutate(&mut self, new: Critter) {
         match self {
             LazzyCritter::Name(_) => panic!("mutated uninit critter!"),
@@ -143,6 +164,8 @@ pub enum NameResolves {
     EmptyQuery,
 }
 
+/// ### name resolving
+/// all name entry must match
 pub fn get_name(context: &Vec<Vec<String>>, name: Vec<String>) -> NameResolves {
     let mut acumulator: Vec<bool> = vec![true; context.len()];
     if name.len() == 0 {
@@ -213,7 +236,7 @@ pub fn print_amb(spot: &Place) {
         match i.unpack().noise {
             Some(a) => {
                 if rand::thread_rng().gen_range(0, 5) == 0 {
-                    println!("{}",a);
+                    println!("* {}",a);
                 }
             }
             None => (),

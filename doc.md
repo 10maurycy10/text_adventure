@@ -1,30 +1,25 @@
-# documentation for tree.json
+# documentation for data
 
-    struct Object { //represents item
-        desc: String, //item discription
-        can_take: bool, //true if the item can be picked up
-        names: [String], //item names
-    }
+A refrance for structures is in the doc/
 
-    struct Place {
-        desc: String, //the first line of discription
-        ambient: Option<String>, //amdiant noise (printed randomle)
-        long: String, //second line of desc
-        moves: {String: String}, //direction to room name pairs
-        objects: [Object] //list of objects in room
-    }
+## world.json
 
-    struct World {
-        map: {String: Place}, //name, room pairs
-        location: String, //curent room
-        aliases: {String: String}, //command aliases
-        backpack: [Object], //list of items in backpack
-    }
+    Hashmap<String, Place>
 
-## tree.json
+## player.json
 
-{String: Place}
+    Player
+
+the defalt player data
+
+## critters.json
+
+    Hashmap<String, Critter>
+
+a lookup for LazzyCritters
 
 ## save games
 
-World
+    World
+
+a dump of game state

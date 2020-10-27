@@ -39,8 +39,8 @@ goblin:
       s: "punch"
       p: "punches"
       pt: "punched"
-    dam: 20
-  hp: 100
+    dam: 10
+  hp: 50  
   max_hp: 100
   desc: an generic unarmed goblin
   alignment: Evil
