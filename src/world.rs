@@ -277,13 +277,13 @@ mod tests {
         let mut map: HashMap<String,Critter> = HashMap::new();
         map.insert("my-c".to_string(), Critter::default());
         c.unpack_init(&map);
-        assert_eq!(c, Critter::default());
+        assert_eq!(c,  LazzyCritter::Critter(Critter::default()));
     }
     #[should_panic]
     #[test]
     fn test_lazzy_critter_uninit_panic() {
         let mut c = LazzyCritter::Name("my-c".to_string());
-        let mut map: HashMap<String,Critter> = HashMap::new();
+        let map: HashMap<String,Critter> = HashMap::new();
         c.unpack_init(&map);
     }
     #[test]
