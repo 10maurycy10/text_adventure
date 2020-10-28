@@ -182,6 +182,7 @@ impl LazzyCritter {
     }
 }
 
+#[derive(Debug,Eq,PartialEq)]
 pub enum NameResolves {
     Results(Vec<usize>),
     Zero,
@@ -271,6 +272,19 @@ pub fn print_amb(spot: &Place) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn test_name_resolving() {
+        let t = vec!(
+            vec!("a".to_string(),"b".to_string()),
+            vec!("a".to_string(),"c".to_string())
+        );
+        assert_eq!(get_name(&t,vec!("a".to_string())), NameResolves::Results(vec!(0,1)));
+        assert_eq!(get_name(&t,vec!("b".to_string())), NameResolves::Results(vec!(0)));
+        assert_eq!(get_name(&t,vec!("c".to_string())), NameResolves::Results(vec!(1)));
+        assert_eq!(get_name(&t,vec!("a".to_string(),"b".to_string())), NameResolves::Results(vec!(0)));
+        assert_eq!(get_name(&t,vec!("d".to_string())), NameResolves::Zero);
+        assert_eq!(get_name(&t,vec!()), NameResolves::EmptyQuery);
+    }
     #[test]
     fn test_lazzy_critter_init() {
         let mut c = LazzyCritter::Name("my-c".to_string());
