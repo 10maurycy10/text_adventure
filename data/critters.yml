@@ -50,6 +50,19 @@ goblin:
     - unarmed
   noise: g-rr
   hurt: GRRRRR
+  backpack:
+    - desc: sharp dagger
+      can_take: true
+      names:
+        - sharp
+        - dagger
+      wepon:
+        dam: 90
+        name: 
+          p: "stab"
+          s: "stabs"
+          pt: "stabed"
+      food: ~ 
 player:
   attack:
     name: 

@@ -16,12 +16,14 @@ tree:
           p: "stab"
           s: "stabs"
           pt: "stabed"
+      food: ~
     - desc: a red apple
       can_take: true
       names:
         - red
         - apple
       wepon: ~
+      food: 20
   critters:
     - Name: player
 _start:

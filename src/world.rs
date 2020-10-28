@@ -110,6 +110,7 @@ pub struct Object {
     pub can_take: bool,
     pub names: Vec<String>,
     pub wepon: Option<Attack>,
+    pub food: Option<i32>,
 }
 
 impl Object {
@@ -233,11 +234,16 @@ impl Critter {
 	}
 	pub fn hurt(&mut self, dam : i32) {
 		self.anoyance = Anoyance::Mad;
-		self.hp -= dam;
+		//println!("hurting {} for {}", self.desc, dam);
+        self.hp -= dam;
 	}
 	pub fn is_dead(&self) -> bool {
 		self.hp < 0
 	}
+    /// call this when killing  
+    pub fn kill(&mut self, p: &mut Place) {
+        p.objects.append(&mut self.backpack);
+    }
 }
 
 pub fn print_room(spot: &Place) {
@@ -299,6 +305,22 @@ mod tests {
         let mut c = LazzyCritter::Name("my-c".to_string());
         let map: HashMap<String,Critter> = HashMap::new();
         c.unpack_init(&map);
+    }
+    #[should_panic]
+    #[test]
+    fn test_lazzy_critter_uninit_panic2() {
+        let mut c = LazzyCritter::Name("my-c".to_string());
+        c.mutate(Critter::default)
+    }
+    #[test]
+    fn test_lazzy_critter_mutate() {
+        let mut c = LazzyCritter::Critter(Critter::default());
+        c.mutate(Critter::default());
+        let mut nc = Critter::default();
+        nc.hp =- 1;
+        c.mutate(nc);
+        assert!(c.unpack() != Critter::default());
+
     }
     #[test]
     fn test_critter_dead() {

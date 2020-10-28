@@ -148,6 +148,32 @@ time : you sit arround ; aliases = .
                 NameResolves::Zero => println!("You can't find that."),
             };
             world.player.critter.mutate(c);
+        },
+        "eat" => {
+            use core::cmp::min;
+            let mut c = world.player.critter.unpack();
+            match get_name(
+                &c.backpack.iter().map(|x| x.names.clone()).collect(),
+                input_iter.collect(),
+            ) {
+                NameResolves::Results(ids) => {
+                    if c.backpack[ids[0]].can_take {
+                        match (c.backpack[ids[0]].food.clone()) {
+                            Some(x) => {
+                                println!("you eat {} for {}", c.backpack[ids[0]].desc, x);
+                                c.hp = min(c.max_hp, c.hp + x);
+                                c.backpack.remove(ids[0]);
+                            },
+                            None => println!("you cant eat that")
+                        }
+                    } else {
+                        println!("nice try but...");
+                    }
+                }
+                NameResolves::EmptyQuery => println!("You must specify a thing."),
+                NameResolves::Zero => println!("You can't find that."),
+            };
+            world.player.critter.mutate(c);
         }
         "attack" => {
             let c = world.player.critter.unpack();
@@ -180,24 +206,26 @@ time : you sit arround ; aliases = .
                         },
                         NameResolves::Results(ids) => {
                             let target_id = ids[0];
-                            let target = curent_room.critters[target_id].unpack();
+                            let mut target = curent_room.critters[target_id].unpack();
                             println!(
                                 "you {} {}",
                                 c.attack.name.p,
                                 target.desc
                             );
-                            let mut n_c = target.clone();
-                            n_c.hurt(c.attack.dam);
-                            if !n_c.is_dead() {    
-                                curent_room.critters[target_id].mutate(n_c);
+                            target.hurt(c.attack.dam);
+                            if !target.is_dead() {    
                                 println!("{}", target.hurt);
                             } else {
                                 println!(
                                     "you kill {}",
                                     target.desc
                                 );
+                                target.kill(curent_room);
                                 curent_room.critters.remove(target_id);
                             };
+                            if (curent_room.critters.len() > target_id) {
+                                curent_room.critters[target_id].mutate(target);
+                            }
                         }   
                     };
                 },
@@ -224,7 +252,7 @@ time : you sit arround ; aliases = .
                         }
                         NameResolves::Results(target_ids) => {
                             let target_id = target_ids[0];
-                            let target = curent_room.critters[target_id].unpack();
+                            let mut target = curent_room.critters[target_id].unpack();
                             match get_name(
                                 &c.backpack.iter().map(|x| x.names.clone()).collect(),
                                 (*input[1]
@@ -251,10 +279,8 @@ time : you sit arround ; aliases = .
                                                 target.desc,
                                                 weppon.f()
                                             );
-                                            let mut n_c = target.clone();
-                                            n_c.hurt(data.dam);
-                                            if !n_c.is_dead() {    
-                                                curent_room.critters[target_id].mutate(n_c);
+                                            target.hurt(data.dam);
+                                            if !target.is_dead() {
                                                 println!("{}", target.hurt);
                                             } else {
                                                 println!(
@@ -262,6 +288,7 @@ time : you sit arround ; aliases = .
                                                     target.desc,
                                                     weppon.f()
                                                 );
+                                                target.kill(curent_room);
                                                 curent_room.critters.remove(target_id);
                                             }
                                         }
@@ -271,6 +298,9 @@ time : you sit arround ; aliases = .
                                         },
                                     };
                                 }
+                            };
+                            if (curent_room.critters.len() > target_id) {
+                                curent_room.critters[target_id].mutate(target);
                             }
                         }
                     };
