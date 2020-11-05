@@ -1,5 +1,7 @@
 <p align="center">
-	<iframe src="https://discord.com/widget?id=773695414095577128&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+	<a href="https://discord.gg/aHvEARZ4FW">
+    	<img src="https://img.shields.io/discord/726947023231647798.svg?logo=discord&colorB=7289DA">
+	</a>
 </p>
 
 # Text Adventure
