@@ -10,18 +10,15 @@ data/player.yml : the player data
 
 docks in doc.md
 
-## (curent) limitations
+## limitations (for now)
 
 criters cant move
 
-criters cant attack
-
-
 ## todo
 
-### short term (commit)
+### short term
 
-add more object interaction.
+add critter movement
 
 ### long(er) term
 

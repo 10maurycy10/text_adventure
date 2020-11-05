@@ -3,7 +3,7 @@ use serde_yaml;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
-
+/// # todo REFACTOR THIS!
 /// ### pharse command and do it.
 pub fn command(mut input_str: String, world: &mut World, game_over: &mut bool) {
     let mut redisplay = false;
