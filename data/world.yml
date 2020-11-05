@@ -24,8 +24,7 @@ tree:
         - apple
       wepon: ~
       food: 20
-  critters:
-    - Name: player
+  critters: []
 _start:
   desc: you are standing on a grass clearing in a forest
   long: there is a tree next to you.
