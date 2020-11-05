@@ -310,7 +310,7 @@ mod tests {
     #[test]
     fn test_lazzy_critter_uninit_panic2() {
         let mut c = LazzyCritter::Name("my-c".to_string());
-        c.mutate(Critter::default)
+        c.mutate(Critter::default())
     }
     #[test]
     fn test_lazzy_critter_mutate() {
